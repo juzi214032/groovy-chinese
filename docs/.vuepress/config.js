@@ -1,6 +1,6 @@
 module.exports = {
   base: "/groovy-chinese/",
-  dest: "/dist",
+  dest: "./dist",
   title: "Groovy 中文文档",
   description: "Groovy 中文文档",
   themeConfig: {
