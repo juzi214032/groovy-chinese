@@ -81,7 +81,7 @@ assert Foo.class.getMethod('bar', new Class[0]).groovydoc.content.contains('Some
 - 第 11 行：运行时获取 Foo 类的 Groovydoc
 - 第 12 行：运行时获取 bar() 方法的 Groovydoc
 
-## 1.4 Shebang Line
+### 1.4 Shebang Line
 
 除了单行注释之外，还有一个特殊的注释，通常被 UNIX 系统理解为 Shebang Line，它允许脚本直接从命令行运行。前提是你已经安装了 Groovy 发行版，并且在 PATH 中配置了 Groovy。
 
@@ -93,3 +93,69 @@ println "Hello from the shebang line"
 `#`字符必须是文件的第一个字符。任何缩进都会产生编译错误。
 
 > 关于 Shebang，据说是来源于，Sharp 和 bang 两个单词的合并；Sharp 代表乐谱中的‘升号’，这个符号和‘井号’，长得一样；而 bang 这个词，则代表‘砰的一声’，之所以用它来表示‘！’，则是出自于漫画，因为漫画中，巨大声响后面都有个‘！’号。
+
+
+
+## 2. 关键字
+
+下述列表是 Groovy 语言的所有关键字
+
+|  as   |  assert  |  break  |  case   |   catch    |   class   |
+| :---: | :------: | :-----: | :-----: | :--------: | :-------: |
+| const | continue |   def   | default |     do     |   else    |
+| enum  | extends  |  false  | finally |    for     |   goto    |
+|  if   | implents | import  |   in    | instanceof | interface |
+|  new  |   null   | package | return  |   super    |  switch   |
+| this  |  throw   | throws  |  trait  |    true    |    try    |
+|  var  |  while   |         |         |            |           |
+
+
+
+## 3. 标识符
+
+### 3.1 普通标识符
+
+标识符以字母、``$`或`_`开头，不能以数字开头。
+
+字母可在以下范围内：
+
+- `a` to `z` （小写 ascii 字符）
+- `A` to `Z` （大写 ascii 字符）
+- `\u00C0` to `\u00D6`
+- `\u00D8` to `\u00F6`
+- `\u00F8` to `\u00FF`
+- `\u0100` to `\uFFFE`
+
+字母之后的字符可以包含数字
+
+下面是几个有效标识符的例子（在这里是变量名）：
+
+```groovy
+def name
+def item3
+def with_underscore
+def $dollarStart
+```
+
+以下的都是无效的标识符：
+
+```groovy
+def 3tier
+def a+b
+def a#b
+```
+
+以`.`开头的标识符也是有效的：
+
+```groovy
+foo.as
+foo.assert
+foo.break
+foo.case
+foo.catch
+```
+
+### 3.2 引用标识符
+
+引用标识符出现在`.`表达式后面，例如`person.name`表达式的`name`的部分可以使用`person.'name'`或者`person."name"`的表示。有个有趣的地方是，一些在 Java 中不能使用的非法字符（例如）
+
