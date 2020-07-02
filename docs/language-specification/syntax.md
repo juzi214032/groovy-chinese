@@ -157,5 +157,34 @@ foo.catch
 
 ### 3.2 引用标识符
 
-引用标识符出现在`.`表达式后面，例如`person.name`表达式的`name`的部分可以使用`person.'name'`或者`person."name"`的表示。有个有趣的地方是，一些在 Java 中不能使用的非法字符（例如）
+引用标识符出现在`.`表达式后面，例如`person.name`表达式的`name`的部分可以使用`person.'name'`或者`person."name"`的表示。有个有趣的地方是，一些在 Java 中不能使用的非法字符（例如破折号、空格、感叹号等字符）是可以在 Groovy 中使用的。
 
+```groovy
+def map = [:]
+
+map."an identifier with a space and double quotes" = "ALLOWED"
+map.'with-dash-signs-and-single-quotes' = "ALLOWED"
+
+assert map."an identifier with a space and double quotes" == "ALLOWED"
+assert map.'with-dash-signs-and-single-quotes' == "ALLOWED"
+```
+
+正如我们在下面关于字符串的章节中所看到的，Groovy 提供了不同的字符串字元。实际上，所有类型的字符串都可以在点后使用。
+
+```groovy
+map.'single quote'
+map."double quote"
+map.'''triple single quote'''
+map."""triple double quote"""
+map./slashy string/
+map.$/dollar slashy string/$
+```
+
+简单字符串和 Groovy 的 GStrings （插值字符串）是有区别的，因为在后者的情况下，内插值被插入到最终的字符串中，用于计算整个变量。
+
+```groovy
+def firstname = "Homer"
+map."Simpson-${firstname}" = "Homer Simpson"
+
+assert map.'Simpson-Homer' == "Homer Simpson"
+```
