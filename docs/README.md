@@ -4,7 +4,7 @@ heroImage: /groovy-logo-blue.png
 heroText: Groovy 中文文档
 tagline: A multi-faceted language for the Java platform
 actionText: 开始阅读 →
-actionLink: /zh/guide/
+actionLink: /language-specification/syntax.md
 features:
 - title: 平滑的学习曲线
   details: 简洁、可读性强、表现力强的语法，对于 Java 开发者来说容易学习。
