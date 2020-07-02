@@ -8,6 +8,11 @@ module.exports = {
       async: true,
       type: "text/javascript",
       src: "https://s9.cnzz.com/z_stat.php?id=1279042755&web_id=1279042755"
+    }],
+    ["script", {
+      async: true,
+      type: "text/javascript",
+      src: "https://hm.baidu.com/hm.js?c400d319a39a68ea6a3732c9dcd9073d"
     }]
   ],
   themeConfig: {
