@@ -4,12 +4,14 @@ module.exports = {
   title: "Groovy 中文文档",
   description: "Groovy 中文文档",
   head: [
-    ["script", {
+    ['link', {
+      rel: 'icon',
+      href: '/favicon.ico'
+    }], ["script", {
       async: true,
       type: "text/javascript",
       src: "https://s9.cnzz.com/z_stat.php?id=1279042755&web_id=1279042755"
-    }],
-    ["script", {
+    }], ["script", {
       async: true,
       type: "text/javascript",
       src: "https://hm.baidu.com/hm.js?c400d319a39a68ea6a3732c9dcd9073d"
@@ -21,23 +23,23 @@ module.exports = {
     docsDir: 'docs',
     editLinks: true,
     editLinkText: '纠正错误',
-    sidebar:[
+    sidebar: [
       {
         title: '语法',
         path: '/language-specification/syntax.md'
-      },{
+      }, {
         title: '操作符',
         path: '/unfinished.md'
-      },{
+      }, {
         title: '程序结构',
         path: '/unfinished.md'
-      },{
+      }, {
         title: '对象导向',
         path: '/unfinished.md'
-      },{
+      }, {
         title: '闭包',
         path: '/unfinished.md'
-      },{
+      }, {
         title: '语义',
         path: '/unfinished.md'
       }
