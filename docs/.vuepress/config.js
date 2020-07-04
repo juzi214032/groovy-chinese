@@ -3,6 +3,9 @@ module.exports = {
   dest: "./dist",
   title: "Groovy 中文文档",
   description: "Groovy 中文文档",
+  plugins: [
+    "vuepress-plugin-cat",
+  ],
   head: [
     ['link', {
       rel: 'icon',
