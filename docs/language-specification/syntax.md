@@ -1,5 +1,5 @@
 ---
-sidebar: auto
+sidebarDepth: 2
 ---
 
 本章介绍 Groovy 编程语言的语法。该语言的语法来源于 Java 语法，但用 Groovy 的特定结构对其进行了增强，并允许进行某些简化。
@@ -197,7 +197,7 @@ assert map.'Simpson-Homer' == "Homer Simpson"
 
 单引号字符串是由单引号包围的一系列字符：
 
-```grovy
+```groovy
 '一个单引号字符串'
 ```
 

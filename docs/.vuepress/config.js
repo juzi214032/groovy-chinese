@@ -21,6 +21,27 @@ module.exports = {
     docsDir: 'docs',
     editLinks: true,
     editLinkText: '纠正错误',
+    sidebar:[
+      {
+        title: '语法',
+        path: '/language-specification/syntax.md'
+      },{
+        title: '操作符',
+        path: '/unfinished.md'
+      },{
+        title: '程序结构',
+        path: '/unfinished.md'
+      },{
+        title: '对象导向',
+        path: '/unfinished.md'
+      },{
+        title: '闭包',
+        path: '/unfinished.md'
+      },{
+        title: '语义',
+        path: '/unfinished.md'
+      }
+    ],
     nav: [{
       text: "快速开始",
       link: "/getting-started/download-groovy.md"
