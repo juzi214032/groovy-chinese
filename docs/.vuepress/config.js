@@ -18,11 +18,12 @@ module.exports = {
     }]
   ],
   themeConfig: {
-    repo: "juzi214032/groovy-chinese",
-    repoLabel: 'Github',
     docsDir: 'docs',
     editLinks: true,
+    smoothScroll: true,
+    repoLabel: 'Github',
     editLinkText: '纠正错误',
+    repo: "juzi214032/groovy-chinese",
     sidebar: [
       {
         title: '语法',
