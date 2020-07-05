@@ -1083,5 +1083,81 @@ String[] groovyBooks = [ 'Groovy in Action', 'Making Java Groovy' ]
 assert groovyBooks.every{ it.contains('Groovy') }
 ```
 
+## 9. Maps
+
+在其他语言中有时也叫字典或关联数组，Groovy 将其称作 Map。Map 将 Key 与 Value 关联起来，用冒号分隔 Key 和 Value ，每个 key/value 对用逗号分隔，整个键和值用方括号包围。
+
+```groovy
+def colors = [red: '#FF0000', green: '#00FF00', blue: '#0000FF']   // 注释 1
+
+assert colors['red'] == '#FF0000'    // 注释 2
+assert colors.green  == '#00FF00'    // 注释 3
+
+colors['pink'] = '#FF00FF'           // 注释 4
+colors.yellow  = '#FFFF00'           // 注释 5
+
+assert colors.pink == '#FF00FF'
+assert colors['yellow'] == '#FFFF00'
+
+assert colors instanceof java.util.LinkedHashMap
+```
+
+- 注释 1：定义一个颜色名称和色值对应的 Map
+- 注释 2：在中括号填入 key 来访问与其相关联的值
+- 注释 3：使用`.`操作符访问与 key 相关联的值
+- 注释 4：使用方括号来设置值
+- 注释 5：使用`.`操作符设置值
+
+上面的例子中使用 key 时，实际上是在 Map 中定义的是字符串类型的 key
+
+Groovy 创建的 Map 实际上是`java.util.LinkedHashMap`的实例。
+
+如果你尝试访问一个 Map 中不存在的 key 时：
+
+```groovy
+assert colors.unknown == null
+```
+
+你会得到一个`null`
+
+在上面的例子中，我们使用了字符串类型的 key，你也可以使用其他类型的值作为 key
+
+```groovy
+def numbers = [1: 'one', 2: 'two']
+
+assert numbers[1] == 'one'
+```
+
+在这里，我们使用 Number 类型的值作为 key ，因为 Number 可以确切地被识别为数字，所以 Groovy 不会像我们之前的例子那样创建一个字符串类型的 key。如果你想传递一个变量来代替 key，让这个变量的值成为 key：
+
+```groovy
+def key = 'name'
+def person = [key: 'Guillaume']      // 注释 1
+
+assert !person.containsKey('name')   // 注释 2
+assert person.containsKey('key')     // 注释 3
+```
+
+- 注释 1：这里的`key`实际上是一个字符串`key`，而不是变量`key`的值
+- 注释 2：这个 Map 没有 `name`这个key
+- 注释 3：相反，这个 Map 包含一个值为`"key"`的key
+
+你也可以传递带引号的字符串作为 key：["name": "Guillaume"]. 如果你传递的作为 key 的字符串不是一个有效的标识符，就必须加上引号。例如，你想创建一个包含哈希值的字符串类型的 key，比如：["street-name": "Guillaume"]
+
+当你需要在 Map 中传递变量值作为 key 时，你必须用小括号将变量或表达式括起来：
+
+```groovy
+person = [(key): 'Guillaume']        // 注释 1
+
+assert person.containsKey('name')    // 注释 2
+assert !person.containsKey('key')    // 注释 3
+```
+
+- 注释 1：用小括号将 key 括起来，以指示解析器我们传递的是一个变量，而不是定义一个字符串 key
+- 注释 2：Map 中值 `"name"`的 key
+- 注释 3：Map 中没有值为`"key"`的 key
+
+
+
 
 
