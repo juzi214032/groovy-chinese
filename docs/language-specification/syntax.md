@@ -1012,3 +1012,76 @@ assert multi[1][0] == 2          // 注释 2
 
 - 注释 1 ：定义一个嵌套的数字列表
 - 注释 2 ：访问最外层列表的第二个元素的第一个元素
+
+## 8. Arrays
+
+Groovy 为定义数组也是使用和 List 一样的中括号和逗号，但要使它成为数组而不是列表，需要通过强制类型转换或显式类型声明来明确定义数组的类型。
+
+```groovy
+String[] arrStr = ['Ananas', 'Banana', 'Kiwi']  // 注释 1
+
+assert arrStr instanceof String[]    // 注释 2
+assert !(arrStr instanceof List)
+
+def numArr = [1, 2, 3] as int[]      // 注释 3
+
+assert numArr instanceof int[]       // 注释 4
+assert numArr.size() == 3
+```
+
+- 注释 1：使用显式类型声明定义数组
+- 注释 2：断言``arrStr`是一个 String 数组
+- 注释 3：使用 `as`操作符创建一个数组
+- 注释 4：断言`numArr`是一个 int 数组
+
+你也可以创建多维数组：
+
+```groovy
+def matrix3 = new Integer[3][3]   // 注释 1      
+assert matrix3.size() == 3
+
+Integer[][] matrix2               // 注释 2
+matrix2 = [[1, 2], [3, 4]]
+assert matrix2 instanceof Integer[][]
+```
+
+- 注释 1：你可以定义一个数组的大小
+- 注释 2：也可以不指定数组大小
+
+访问数组元素的方法与访问列表的方法相同：
+
+```groovy
+String[] names = ['Cédric', 'Guillaume', 'Jochen', 'Paul']
+assert names[0] == 'Cédric' // 注释 1    
+
+names[2] = 'Blackdrag'      // 注释 2
+assert names[2] == 'Blackdrag'
+```
+
+- 注释 1：访问数组的第一个元素
+- 注释 2：给数组的第三个元素设置一个新值
+
+Groovy 不支持使用大括号初始化数组，因为大括号会和 Groovy 的闭包产生歧义。
+
+### 8.1  Java 风格的数组初始化
+
+Groovy 一直支持使用方括号定义列表和数组，并避免使用 Java 风格的大括号，以免与闭包定义冲突。然而，如果大括号紧跟在数组类型声明之后，则不会与闭包定义产生歧义，所以现在也支持用 Java 风格的方式定义数组。
+
+举个栗子：
+
+```groovy
+def primes = new int[] {2, 3, 5, 7, 11}
+assert primes.size() == 5 && primes.sum() == 28
+assert primes.class.name == '[I'
+
+def pets = new String[] {'cat', 'dog'}
+assert pets.size() == 2 && pets.sum() == 'catdog'
+assert pets.class.name == '[Ljava.lang.String;'
+
+// traditional Groovy alternative still supported
+String[] groovyBooks = [ 'Groovy in Action', 'Making Java Groovy' ]
+assert groovyBooks.every{ it.contains('Groovy') }
+```
+
+
+
