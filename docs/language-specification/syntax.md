@@ -189,7 +189,7 @@ map."Simpson-${firstname}" = "Homer Simpson"
 assert map.'Simpson-Homer' == "Homer Simpson"
 ```
 
-## 4. 字符串
+## 4. String
 
 文本以一串字符的形式表示，称为字符串。Groovy 允许你实例化`java.lang.String`对象，以及GStrings（`groovy.lang.GString`），GStrings 在其他编程语言中也被称为插值字符串。
 
@@ -587,3 +587,428 @@ assert c3 instanceof Character
 
 当字符被保存在一个变量中时，第一种方法更优，而当一个 char 值必须作为方法调用的参数传递时，其他两个选项（2和3）更好。
 
+## 5. Number
+
+Groovy支持不同类型的整数和小数，并有 Java 常用的 Number 类型支持。
+
+### 5.1 整数
+
+整数类型和 Java 一样：
+
+- `byte`
+- `char`
+- `short`
+- `int`
+- `long`
+- `java.lang.BigInteger`
+
+你可以用下面的声明创建这些类型的整数：
+
+```groovy
+// primitive types
+byte  b = 1
+char  c = 2
+short s = 3
+int   i = 4
+long  l = 5
+
+// infinite precision
+BigInteger bi =  6
+```
+
+如果你通过使用`def`关键字来使用可选的输入法，那么数字的类型就会有所不同：它会自动选择合适的类型。
+
+对于正数：
+
+```groovy
+def a = 1
+assert a instanceof Integer
+
+// Integer.MAX_VALUE
+def b = 2147483647
+assert b instanceof Integer
+
+// Integer.MAX_VALUE + 1
+def c = 2147483648
+assert c instanceof Long
+
+// Long.MAX_VALUE
+def d = 9223372036854775807
+assert d instanceof Long
+
+// Long.MAX_VALUE + 1
+def e = 9223372036854775808
+assert e instanceof BigInteger
+```
+
+对于负数：
+
+```groovy
+def na = -1
+assert na instanceof Integer
+
+// Integer.MIN_VALUE
+def nb = -2147483648
+assert nb instanceof Integer
+
+// Integer.MIN_VALUE - 1
+def nc = -2147483649
+assert nc instanceof Long
+
+// Long.MIN_VALUE
+def nd = -9223372036854775808
+assert nd instanceof Long
+
+// Long.MIN_VALUE - 1
+def ne = -9223372036854775809
+assert ne instanceof BigInteger
+```
+
+#### 5.1.1 其他进制
+
+数字也可以用二进制、八进制、十六进制和十进制来表示。
+
+##### 二进制
+
+二进制数字以`0b`前缀开始：
+
+```groovy
+int xInt = 0b10101111
+assert xInt == 175
+
+short xShort = 0b11001001
+assert xShort == 201 as short
+
+byte xByte = 0b11
+assert xByte == 3 as byte
+
+long xLong = 0b101101101101
+assert xLong == 2925l
+
+BigInteger xBigInteger = 0b111100100001
+assert xBigInteger == 3873g
+
+int xNegativeInt = -0b10101111
+assert xNegativeInt == -175
+```
+
+##### 八进制
+
+八进制以`0`作为前缀
+
+```groovy
+int xInt = 077
+assert xInt == 63
+
+short xShort = 011
+assert xShort == 9 as short
+
+byte xByte = 032
+assert xByte == 26 as byte
+
+long xLong = 0246
+assert xLong == 166l
+
+BigInteger xBigInteger = 01111
+assert xBigInteger == 585g
+
+int xNegativeInt = -077
+assert xNegativeInt == -63
+```
+
+##### 十六进制
+
+十六进制以`0x`作为前缀
+
+```groovy
+int xInt = 0x77
+assert xInt == 119
+
+short xShort = 0xaa
+assert xShort == 170 as short
+
+byte xByte = 0x3a
+assert xByte == 58 as byte
+
+long xLong = 0xffff
+assert xLong == 65535l
+
+BigInteger xBigInteger = 0xaaaa
+assert xBigInteger == 43690g
+
+Double xDouble = new Double('0x1.0p0')
+assert xDouble == 1.0d
+
+int xNegativeInt = -0x77
+assert xNegativeInt == -119
+```
+
+### 5.2 小数
+
+小数类型与 Java 中相同：
+
+- `floagt`
+- `double`
+- `java.lang.BigDecimal`
+
+你可以通过以下声明创建这些类型的小数：
+
+```groovy
+// primitive types
+float  f = 1.234
+double d = 2.345
+
+// infinite precision
+BigDecimal bd =  3.456
+```
+
+小数可以使用指数表达，指数字母为`e`或`E`，后面是正负号（可选），再跟着一个代表指数的整数：
+
+```groovy
+assert 1e3  ==  1_000.0
+assert 2E4  == 20_000.0
+assert 3e+1 ==     30.0
+assert 4E-2 ==      0.04
+assert 5e-1 ==      0.5
+```
+
+为了方便进行精确的小数计算，Groovy 选用`java.lang.BigDecimal`作为其十进制数类型。此外，`float`和`double`都被支持，但需要明确的类型声明、类型强转或使用[类型后缀](./### 5.4 数字类型后缀)。即使`BigDecimal`是十进制数的默认类型，在采用`float`或 `double`作为参数类型的方法或闭包中，也可以接受这种类型。
+
+小数不能用二进制、八进制或十六进制表示。
+
+### 5.3 下划线
+
+在写长的文字数字时，眼睛比较难看出一些数字是如何分组的。可以在数字字面量中通过下划线`_`来进行区分：
+
+```groovy
+long creditCardNumber = 1234_5678_9012_3456L
+long socialSecurityNumbers = 999_99_9999L
+double monetaryAmount = 12_345_132.12
+long hexBytes = 0xFF_EC_DE_5E
+long hexWords = 0xFFEC_DE5E
+long maxLong = 0x7fff_ffff_ffff_ffffL
+long alsoMaxLong = 9_223_372_036_854_775_807L
+long bytes = 0b11010010_01101001_10010100_10010010
+```
+
+### 5.4 数字类型后缀
+
+我们可以通过给出一个后缀（见下表）来强制一个数字（包括二进制、八进制和十六进制）有一个特定的类型（后缀不区分大小写）。
+
+| 类型       | 后缀     |
+| ---------- | -------- |
+| BigInteger | `G`或`g` |
+| Long       | `L`或`l` |
+| Integer    | `I`或`i` |
+| BigDecimal | `G`或`g` |
+| Double     | `D`或`d` |
+| Float      | `F`或`f` |
+
+举例：
+
+```groovy
+assert 42I == new Integer('42')
+assert 42i == new Integer('42') // lowercase i more readable
+assert 123L == new Long("123") // uppercase L more readable
+assert 2147483648 == new Long('2147483648') // Long type used, value too large for an Integer
+assert 456G == new BigInteger('456')
+assert 456g == new BigInteger('456')
+assert 123.45 == new BigDecimal('123.45') // default BigDecimal type used
+assert 1.200065D == new Double('1.200065')
+assert 1.234F == new Float('1.234')
+assert 1.23E23D == new Double('1.23E23')
+assert 0b1111L.class == Long // binary
+assert 0xFFi.class == Integer // hexadecimal
+assert 034G.class == BigInteger // octal
+```
+
+### 5.5 数学运算
+
+虽然后面会讲到[运算符](http://www.groovy-lang.org/syntax.html#_operators)，但讨论数学运算的行为以及它们的结果类型是什么很重要。
+
+除法和幂运算暂不介绍（后文将介绍）。
+
+- 在`byte`、`char`、`short`和`int`之间进行二元运算的结果是`int`
+- 在`long`与`byte`、`char`、`short`和`int`之间进行二元运算的结果是`long`
+- 在`BigInteger`和任何其他整数类型的二元运算结果是`BigInteger`
+- 涉及`BigDecimal`的二元运算，有`byte`、`char`、`short`、`int`和`BigInteger`，结果是`BigDecimal`
+- 在`float`、`double`和`BigDecimal`之间进行二元运算，结果是`double`
+- 两个`BigDecimal`之间的二元运算结果为`BigDecimal`
+
+下表概述了这些规则：
+
+|            | byte | char | short | int  | long | BigInteger | float  | double | BigDecimal |
+| ---------- | ---- | ---- | ----- | ---- | ---- | ---------- | ------ | ------ | ---------- |
+| byte       | int  | int  | int   | int  | long | BigInteger | double | double | BigDecimal |
+| char       |      | int  | int   | int  | long | BigInteger | double | double | BigDecimal |
+| short      |      |      | int   | int  | long | BigInteger | double | double | BigDecimal |
+| int        |      |      |       | int  | long | BigInteger | double | double | BigDecimal |
+| long       |      |      |       |      | long | BigInteger | double | double | BigDecimal |
+| BigInteger |      |      |       |      |      | BigInteger | double | double | BigDecimal |
+| float      |      |      |       |      |      |            | double | double | double     |
+| double     |      |      |       |      |      |            |        | double | double     |
+| BigDecimal |      |      |       |      |      |            |        |        | BigDecimal |
+
+由于 Groovy 的运算符重载，通常的算术运算符在`BigInteger`和`BigDecimal`中也能很好地工作，不像在 Java 中，你必须使用显式方法调用对这些数字进行操作。
+
+#### 5.5.1 除法运算
+
+如果操作数是`float`或`double`，除法运算符`/`（和`/=`用于除法和赋值）会产生一个`double`结果，否则会产生一个`BigDecimal`结果（当两个操作数都是`short`、`char`、`byte`、`int`、`long`、`BigInteger`或`BigDecimal`类型的任意组合）。
+
+如果除法是精确的（即产生的结果可以在相同精度和比例的范围内表示），或者使用`MathContext`，[精度](http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#precision())为两个操作数精度的最大值加上一个额外的10的精度，[比例](http://docs.oracle.com/javase/7/docs/api/java/math/BigDecimal.html#scale())为10的最大值和操作数比例的最大值，则使用`divide()`方法进行`BigDecimal`除法。
+
+对于像 Java 中的整数除法，你应该使用`intdiv()`方法，因为 Groovy 没有提供专门的整数除法运算符符号。
+
+#### 5.5.2 幂运算
+
+幂运算用`**`运算符表示，有两个参数：基数和指数。幂运算的结果取决于它的操作数和运算结果（特别是如果结果可以用积分值表示）。
+
+Groovy 的幂运算使用以下规则来确定结果类型：
+
+- 如果指数是小数
+  - 如果结果可以用`Integer`表示，则返回一个`Integer`
+  - 否则，如果结果可以用`Long`表示，则返回一个`Long`
+  - 否则返回一个`Double`
+- 如果指数是整数
+  - 如果指数是严格的负数，那么返回一个`Integer`、`Long`或`Double`（如果结果值适合该类型）
+  - 如果指数是正数或零
+    - 如果基数是`BigDecimal`，则返回一个`BigDecimal`结果值
+    - 如果基数是`BigInteger`，则返回一个`BigInteger`结果值
+    - 如果基数是一个`Integer`，那么如果结果值适合，则返回一个`Integer`，否则返回一个`BigInteger`
+    - 如果基数是`Long`，结果合适的话，则返回一个`Long`，否则返回一个`BigInteger`
+
+我们可以用几个例子来说明这些规则：
+
+```groovy
+// base and exponent are ints and the result can be represented by an Integer
+assert    2    **   3    instanceof Integer    //  8
+assert   10    **   9    instanceof Integer    //  1_000_000_000
+
+// the base is a long, so fit the result in a Long
+// (although it could have fit in an Integer)
+assert    5L   **   2    instanceof Long       //  25
+
+// the result can't be represented as an Integer or Long, so return a BigInteger
+assert  100    **  10    instanceof BigInteger //  10e20
+assert 1234    ** 123    instanceof BigInteger //  170515806212727042875...
+
+// the base is a BigDecimal and the exponent a negative int
+// but the result can be represented as an Integer
+assert    0.5  **  -2    instanceof Integer    //  4
+
+// the base is an int, and the exponent a negative float
+// but again, the result can be represented as an Integer
+assert    1    **  -0.3f instanceof Integer    //  1
+
+// the base is an int, and the exponent a negative int
+// but the result will be calculated as a Double
+// (both base and exponent are actually converted to doubles)
+assert   10    **  -1    instanceof Double     //  0.1
+
+// the base is a BigDecimal, and the exponent is an int, so return a BigDecimal
+assert    1.2  **  10    instanceof BigDecimal //  6.1917364224
+
+// the base is a float or double, and the exponent is an int
+// but the result can only be represented as a Double value
+assert    3.4f **   5    instanceof Double     //  454.35430372146965
+assert    5.6d **   2    instanceof Double     //  31.359999999999996
+
+// the exponent is a decimal value
+// and the result can only be represented as a Double value
+assert    7.8  **   1.9  instanceof Double     //  49.542708423868476
+assert    2    **   0.1f instanceof Double     //  1.0717734636432956
+```
+
+## 6. Boolean
+
+布尔型是一种特殊的数据类型，用于表示真值：`true`和`false`。使用这种数据类型来追踪真/假[条件](布尔型是一种特殊的数据类型，用于表示真值：真和假。使用这种数据类型来追踪真/假条件的简单标志。)的简单标志。
+
+布尔值可以存储在变量中，指定到字段中，就像任何其他数据类型一样：
+
+```groovy
+def myBooleanVariable = true
+boolean untypedBooleanVar = false
+booleanField = true
+```
+
+`true`和`false`是唯一的两个原始布尔值。但更复杂的布尔表达式可以用[逻辑运算符](http://www.groovy-lang.org/syntax.html#_bitwise_and_logical_operators)来表示。
+
+此外，Groovy 有[特殊的规则](https://docs.groovy-lang.org/latest/html/documentation/core-semantics.html#Groovy-Truth)（通常被称为 Groovy Truth ），用于将非布尔对象转换为布尔值。
+
+## 7. List
+
+Groovy 使用逗号分隔 List 的值，并用方括号括起来。Groovy 的 List 是 `java.util.List`，因为Groovy没有定义自己的集合类。在定义 List 变量时使用的具体列表实现默认是`java.util.ArrayList`，除非你另行指定（后面会介绍）。
+
+```groovy
+def numbers = [1, 2, 3]          // 注释 1   
+
+assert numbers instanceof List   // 注释 2
+assert numbers.size() == 3       // 注释 3
+```
+
+- 注释 1 ：以逗号为分隔符，并用方括号括起来定义一个 List，并将该 List 赋值到一个变量中
+- 注释 2 ：该 List 是 Java 的 `java.util.List`接口的一个实例
+- 注释 3 ：List 的长度可以用`size()`方法查询，显示该 List 包含3个元素
+
+在上面的例子中，我们使用的是元素类型相同的列表，你也可以创建元素类型不同的列表：
+
+```groovy
+def heterogeneous = [1, "a", true]   // 注释 1
+```
+
+- 注释 1 ：	该 List 中包含一个数字、一个字符串和一个布尔值
+
+上文提到，在默认情况下，List 实际上是`java.util.ArrayList`的实例，但可以使用`as`操作符实现类型强转，或者进行显式类型声明，都可以让 List 支持不同的类型：
+
+```groovy
+def arrayList = [1, 2, 3]
+assert arrayList instanceof java.util.ArrayList
+
+def linkedList = [2, 3, 4] as LinkedList    // 注释 1
+assert linkedList instanceof java.util.LinkedList
+
+LinkedList otherLinked = [3, 4, 5]          // 注释 2        
+assert otherLinked instanceof java.util.LinkedList
+```
+
+- 注释 1 ：使用`as`操作符将类型强转为`java.util.LinkedList`
+- 注释 2 ：显示声明类型为 `LinkedList`
+
+你可以用`[]`下标操作符访问列表中的元素（无论是读值还是设值），负数表示从列表末尾访问元素。也可以用范围来访问，并使用`<<`左移操作符将元素追加到列表中：
+
+```groovy
+def letters = ['a', 'b', 'c', 'd']
+
+assert letters[0] == 'a'     // 注释 1
+assert letters[1] == 'b'
+
+assert letters[-1] == 'd'    // 注释 2
+assert letters[-2] == 'c'
+
+letters[2] = 'C'             // 注释 3
+assert letters[2] == 'C'
+
+letters << 'e'               // 注释 4
+assert letters[ 4] == 'e'
+assert letters[-1] == 'e'
+
+assert letters[1, 3] == ['b', 'd']         // 注释 5
+assert letters[2..4] == ['C', 'd', 'e']    // 注释 6
+```
+
+- 注释 1 ：访问列表的第一个元素(从 0 开始)
+- 注释 2 ：访问列表的最后一个元素。-1 表示列表最后一个元素
+- 注释 3 ：为列表的第三个元素设置一个新的值
+- 注释 4 ：使用`<<`左移操作符在列表末尾添加一个元素
+- 注释 5 ：同时访问两个元素，返回一个包含这两个元素的新列表
+- 注释 6 ：使用一个范围从列表中访问一个范围的值，从开始到结束的元素位置
+
+由于列表可以是异构的，所以列表也可以包含其他列表，以创建多维列表：
+
+```groovy
+def multi = [[0, 1], [2, 3]]     // 注释 1
+assert multi[1][0] == 2          // 注释 2 
+```
+
+- 注释 1 ：定义一个嵌套的数字列表
+- 注释 2 ：访问最外层列表的第二个元素的第一个元素
