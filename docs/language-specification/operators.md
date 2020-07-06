@@ -115,5 +115,58 @@ f **= 2
 assert f == 9
 ```
 
+## 2. 关系运算符
+
+关系运算符允许在对象之间进行比较，知道两个对象是相同还是不同，或者一个大于、小于或等于另一个。
+
+下表是可用的操作符：
+
+| 运算符 | 比较目的                        |
+| ------ | ------------------------------- |
+| `==`   | 相等                            |
+| `!=`   | 不等                            |
+| `<`    | 小于                            |
+| `<=`   | 小于等于                        |
+| `>`    | 大于                            |
+| `>=`   | 大于等于                        |
+| `===`  | 严格相等（Groovy 3.0.0 后支持） |
+| `!==`  | 严格不等（Groovy 3.0.0 后支持） |
+
+下面是一些使用这些运算符进行简单数字比较的例子：
+
+```groovy
+assert 1 + 2 == 3
+assert 3 != 4
+
+assert -2 < 3
+assert 2 <= 2
+assert 3 <= 4
+
+assert 5 > 1
+assert 5 >= -2
+```
+
+` ===` 和 `!==` ，与调用 is() 方法和否定调用 is() 方法效果相同。
+
+```groovy
+import groovy.transform.EqualsAndHashCode
+
+@EqualsAndHashCode
+class Creature { String type }
+
+def cat = new Creature(type: 'cat')
+def copyCat = cat
+def lion = new Creature(type: 'cat')
+
+assert cat.equals(lion) // Java 逻辑判等
+assert cat == lion      // Groovy 快速判等
+
+assert cat.is(copyCat)  // Groovy 特有的判等
+assert cat === copyCat  // 快速判等
+assert cat !== lion     // 快速判不等
+```
+
+
+
 
 
