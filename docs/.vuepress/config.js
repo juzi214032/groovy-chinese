@@ -40,7 +40,7 @@ module.exports = {
         title: '语法',
         path: '/language-specification/syntax.md'
       }, {
-        title: '操作符',
+        title: '运算符',
         path: '/language-specification/operators.md'
       }, {
         title: '程序结构',
