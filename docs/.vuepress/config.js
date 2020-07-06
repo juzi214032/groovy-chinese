@@ -23,6 +23,9 @@ module.exports = {
       async: true,
       type: "text/javascript",
       src: "https://hm.baidu.com/hm.js?c400d319a39a68ea6a3732c9dcd9073d"
+    }],["meta",{
+      name:"keyword",
+      content:"groovy,groovy中文,groovy文档,groovy中文网"
     }]
   ],
   themeConfig: {
