@@ -41,7 +41,7 @@ module.exports = {
         path: '/language-specification/syntax.md'
       }, {
         title: '操作符',
-        path: '/unfinished.md'
+        path: '/language-specification/operators.md'
       }, {
         title: '程序结构',
         path: '/unfinished.md'
