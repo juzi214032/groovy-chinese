@@ -168,5 +168,84 @@ assert cat !== lion     // 快速判不等
 
 ## 3. 逻辑运算符
 
+Groovy 为布尔表达式提供了三种逻辑运算符：
+
+- `&&`：逻辑与
+- `||`：逻辑或
+- `!`：逻辑非
+
+我们用下面的例子来说明：
+
+```groovy
+assert !false           // 注释 1
+assert true && true     // 注释 2
+assert true || false    // 注释 3
+```
+
+- 注释 1：true
+- 注释 2：true
+- 注释 3：true
+
+### 3.1 优先级
+
+逻辑非`!`的优先级高于逻辑与`&&`。
+
+```groovy
+assert (!false && false) == false // 注释 1
+```
+
+- 注释 1：这里断言为 `true`（括号里的表达式为`false`），因为`!`的优先级高于`&&`，所以`!`只作用于第一个`false`。
+
+逻辑与`&&`的优先级高于逻辑或`||`。
+
+```groovy
+assert true || true && false  // 注释 1
+```
+
+- 注释 1：这里断言为`true`，因为逻辑与`&&`的优先级高于逻辑或`||`，所以`||`最后执行，返回`true`.
+
+### 3.2 短路
+
+逻辑或`||`操作符支持短路：如果左操作数为`true`，它知道结果在任何情况下都会为`true`，**所以它不会对右操作数进行计算。只有当左操作数为假时，才会对右操作数进行计算。**
+
+同样，对于逻辑与`&&`操作符来说，如果左操作数为`false`，它知道在任何情况下结果都是`false`的，所以它不会计算右操作数。只有当左操作数为`true`时，才会对右操作数进行计算。
+
+```groovy
+boolean checkIfCalled() {   // 注释 1
+    called = true
+}
+
+called = false
+true || checkIfCalled()
+assert !called              // 注释 2
+
+called = false
+false || checkIfCalled()
+assert called               // 注释 3
+
+called = false
+false && checkIfCalled()
+assert !called              // 注释 4
+
+called = false
+true && checkIfCalled()
+assert called               // 注释 5
+```
+
+- 注释 1：创建一个函数，每当被调用时就将`called`的值设置为`true`
+- 注释 2：逻辑或`||`的左操作数为`true`，则`checkIfCalled()`函数不会被调用，因为逻辑或`||`会使右操作数的计算短路。
+- 注释 3：逻辑或`||`的左操作数为`false`，则`checkIfCalled()`函数会被调用
+- 注释 4：逻辑与`&&`的左操作数为`false`，则`checkIfCalled()`函数不会被调用，最终结果肯定为`false`
+- 注释 5：逻辑与`&&`的左操作数为`true`，则`checkIfCalled()`函数会被调用
+
+
+
+
+
+
+
+
+
+
 
 
