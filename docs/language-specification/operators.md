@@ -238,10 +238,45 @@ assert called               // 注释 5
 - 注释 4：逻辑与`&&`的左操作数为`false`，则`checkIfCalled()`函数不会被调用，最终结果肯定为`false`
 - 注释 5：逻辑与`&&`的左操作数为`true`，则`checkIfCalled()`函数会被调用
 
+## 4. 位运算
 
+Groovy 提供了 4 种位运算符：
 
+- `&`：按位与
+- `|`：按位或
+- `^`：按位异或
+- `~`：按位非
 
+位运算符作用于`byte`或`int`并返回一个`int`：
 
+```groovy
+int a = 0b00101010
+assert a == 42
+int b = 0b00001000
+assert b == 8
+assert (a & a) == a                     // 注释 1
+assert (a & b) == b                     // 注释 2
+assert (a | a) == a                     // 注释 3
+assert (a | b) == a                     // 注释 4
+
+int mask = 0b11111111                   // 注释 5
+assert ((a ^ a) & mask) == 0b00000000   // 注释 6
+assert ((a ^ b) & mask) == 0b00100010   // 注释 7
+assert ((~a) & mask)    == 0b11010101   // 注释 8
+```
+
+- 注释 1：按位与
+- 注释 2：按位与并返回公共位
+- 注释 3：按位或
+- 注释 4：按位或并返回所有为 `1` 的位
+- 注释 5：设置一个掩码，只检查最后 8 位
+- 注释 6：按位异或
+- 注释 7：按位异或
+- 注释 8：按位非
+
+值得注意的是，基元类型的内部表示遵循 [Java 语言规范](http://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html)。特别是，基元类型是有符号的，这意味着对于按位非，使用掩码只检索必要的位总是好的。
+
+在 Groovy 中，位运算符具有[可重载](http://groovy-lang.org/operators.html#Operator-Overloading)的特性，这意味着你可以为任何类型的对象定义这些运算符的行为。
 
 
 
