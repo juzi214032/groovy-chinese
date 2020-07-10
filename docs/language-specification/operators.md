@@ -278,6 +278,91 @@ assert ((~a) & mask)    == 0b11010101   // 注释 8
 
 在 Groovy 中，位运算符具有[可重载](http://groovy-lang.org/operators.html#Operator-Overloading)的特性，这意味着你可以为任何类型的对象定义这些运算符的行为。
 
+## 5. 条件运算符
+
+### 5.1 非运算符
+
+非运算符使用`!`表示，可以反转布尔表达式的结果。特别是可以将非运算符与 [Groovy truth](https://docs.groovy-lang.org/latest/html/documentation/core-semantics.html#Groovy-Truth)结合使用：
+
+```groovy
+assert (!true)    == false                      // 注释 1
+assert (!'foo')   == false                      // 注释 2
+assert (!'')      == true                       // 注释 3
+```
+
+- 注释 1：`true`的否定是`false`
+- 注释 2：`'foo'`不是一个空字符串，布尔计算结果为`true`，所以加上`!`后返回`false`
+- 注释 3：`''`是一个空字符串，布尔计算结果为`false`，所以加上`!`后返回`true`
+
+### 5.2 三元运算符
+
+三元运算符是一个快捷表达式，相当于一个 if/else 分支，将一些值分配给一个变量。
+
+可以取代这样的代码：
+
+```groovy
+if (string!=null && string.length()>0) {
+    result = 'Found'
+} else {
+    result = 'Not found'
+}
+```
+
+你可以这样写：
+
+```groovy
+result = (string!=null && string.length()>0) ? 'Found' : 'Not found'
+```
+
+三元表达式也兼容 [Groovy truth](https://docs.groovy-lang.org/latest/html/documentation/core-semantics.html#Groovy-Truth)，所以你可以让他更简单：
+
+```groovy
+result = string ? 'Found' : 'Not found'
+```
+
+### 5.3 Elvis 运算符
+
+Elvis 运算符是三元运算符的简短表达。其中一个方便的例子是：当一个表达式解析为`false`时（如 [Groovy truth](https://docs.groovy-lang.org/latest/html/documentation/core-semantics.html#Groovy-Truth)）。如下是一个简单的例子：
+
+```groovy
+displayName = user.name ? user.name : 'Anonymous'   // 注释 1
+displayName = user.name ?: 'Anonymous'              // 注释 2
+```
+
+- 注释 1：使用三元运算符，你必须重复你要指定的值
+- 注释 2：使用 Elvis 运算符，当被测试的值不为`false`时，`?:`后的值就会被使用
+
+使用 Elvis 操作符让代码不那么啰嗦，并降低了重构时出错的风险，因为不需要在条件和正向返回值中重复测试表达式。
+
+### 5.4 Elvis 指定运算符
+
+Groovy 3.0.0 引入了 Elvis 运算符，例子如下：
+
+```groovy
+import groovy.transform.ToString
+
+@ToString
+class Element {
+    String name
+    int atomicNumber
+}
+
+def he = new Element(name: 'Helium')
+he.with {
+    name = name ?: 'Hydrogen'   // 旧的 Elvis 运算符
+    atomicNumber ?= 2           // Elvis 指定运算符更简洁
+}
+assert he.toString() == 'Element(Helium, 2)'
+```
+
+
+
+
+
+
+
+
+
 
 
 
