@@ -355,6 +355,198 @@ he.with {
 assert he.toString() == 'Element(Helium, 2)'
 ```
 
+## 6. 对象操作符
+
+### 6.1 安全导航操作符
+
+安全导航操作符可以避免`NullPointerException`。通常情况下，当你有一个引用对象时，你可能需要在访问该对象的方法或属性之前验证它是否为`null`。为了避免这种情况，安全导航操作符将简单地返回`null`，而不是抛出异常，就像这样：
+
+```groovy
+def person = Person.find { it.id == 123 }    // 注释 1
+def name = person?.name                      // 注释 2
+assert name == null                          // 注释 3
+```
+
+- 注释 1：`find`将会返回`null`
+- 注释 2：使用`null`安全的操作符防止`NullPointerException`
+- 注释 3：返回`null`
+
+### 6.2 直接字段访问操作符
+
+通常在 Groovy 中，你写的代码像这样：
+
+```groovy
+class User {
+    public final String name                 
+    User(String name) { this.name = name}
+    String getName() { "Name: $name" }       
+}
+def user = new User('Bob')
+assert user.name == 'Name: Bob'              
+```
+
+- 公共变量`name`
+- 一个返回自定字符串的对于`name`的`getter`方法
+- 调用 getter 方法
+
+user.name 的调用会触发对同名属性的调用，也就是说，这里是对 `name` 的 getter 的调用。如果你想检索字段而不是调用 getter，你可以使用直接字段访问操作符：
+
+```groovy
+assert user.@name == 'Bob'                   // 注释 1
+```
+
+- 注释 1：使用`.@`替代 getter 直接访问变量
+
+### 6.3 方法指针操作符
+
+方法指针操作符(`.&`)可以用来在变量中存储对方法的引用，以便以后调用它：
+
+```groovy
+def str = 'example of method reference'            // 注释 1
+def fun = str.&toUpperCase                         // 注释 2
+def upper = fun()                                  // 注释 3
+assert upper == str.toUpperCase()                  // 注释 4
+```
+
+- `str`是一个`String`类型的变量
+- 我们将对`str`实例的`toUpperCase`方法的引用存储在一个名为`fun`的变量中
+- `fun`可以像普通方法一样被调用
+- 我们可以检查结果是否与直接调用`str`相同
+
+使用方法指针有多种优势。首先，这种方法指针的类型是`groovy.lang.Closure`，所以它可以用在任何会用到闭包的地方。特别是，它适合于转换一个现有的方法以满足策略模式的需要：
+
+```groovy
+def transform(List elements, Closure action) {                    // 注释 1
+    def result = []
+    elements.each {
+        result << action(it)
+    }
+    result
+}
+String describe(Person p) {                                       // 注释 2
+    "$p.name is $p.age"
+}
+def action = this.&describe                                       // 注释 3
+def list = [
+    new Person(name: 'Bob',   age: 42),
+    new Person(name: 'Julia', age: 35)]                           // 注释 4
+assert transform(list, action) == ['Bob is 42', 'Julia is 35']    // 注释 5
+```
+
+- 注释 1：`transform`方法获取列表中的每一个元素，并对其调用`action`闭包，返回一个新的 list
+- 注释 2：定义一个函数，接受一个`Person`并返回一个字符串
+- 注释 3：在该函数上创建一个方法指针
+- 注释 4：我们创建我们想要收集描述符的元素列表
+- 注释 5：方法指针可以用在需要使用`Closure`的地方
+
+方法指针是通过接收器和方法名绑定的。参数是在运行时解析的，也就是说，如果你有多个同名的方法，语法并没有什么不同，只是在运行时解析相应的被调用的方法。
+
+```groovy
+def doSomething(String str) { str.toUpperCase() }    // 注释 1
+def doSomething(Integer x) { 2*x }                   // 注释 2
+def reference = this.&doSomething                    // 注释 3
+assert reference('foo') == 'FOO'                     // 注释 4
+assert reference(123)   == 246                       // 注释 5
+```
+
+- 注释 1：定义一个重载的`doSomething`方法，接受一个`String`作为参数。
+- 注释 2：定义一个重载的`doSomething`方法，接受一个`Integer`作为参数。
+- 注释 3：在`doSomething`上创建一个方法指针，而不指定参数类型。
+- 注释 4：使用带有`String`的方法指针调用`String`的`doSomething`
+- 注释 5：使用带有`Integer`的方法指针调用`Integer`的`doSomething`
+
+为了与 Java 8 方法引用的期望保持一致，在 Groovy 3 及以上版本中，你可以使用new作为方法名来获取构造函数的方法指针：
+
+```groovy
+def foo  = BigInteger.&new
+def fortyTwo = foo('42')
+assert fortyTwo == 42G
+```
+
+同样在Groovy 3及以上版本中，你可以获得一个方法指针，指向一个类的实例方法。这个方法指针需要一个额外的参数，就是要调用该方法的接收器实例：
+
+```groovy
+def instanceMethod = String.&toUpperCase
+assert instanceMethod('foo') == 'FOO'
+```
+
+为了向后兼容，在这种情况下，任何静态方法如果恰好有正确的调用参数，将优先于实例方法。
+
+### 6.4 方法引用操作符
+
+​	Groovy 3+ 中的 Parrot 解析器支持 Java 8+ 方法引用操作符。方法引用运算符(`::`)可用于在期望功能接口的上下文中引用一个方法或构造函数，这与 Groovy 的方法指针运算符提供的功能有些重叠。事实上，对于动态 Groovy 来说，方法引用操作符只是方法指针操作符的别名。对于静态 Groovy 来说，该操作符产生的字节码与 Java 在相同上下文中产生的字节码类似。
+
+下面的脚本中显示了一些例子，突出了各种支持的方法参考案例：
+
+```groovy
+import groovy.transform.CompileStatic
+import static java.util.stream.Collectors.toList
+
+@CompileStatic
+void methodRefs() {
+    assert 6G == [1G, 2G, 3G].stream().reduce(0G, BigInteger::add)                           // 注释 1
+    assert [4G, 5G, 6G] == [1G, 2G, 3G].stream().map(3G::add).collect(toList())              // 注释 2
+    assert [1G, 2G, 3G] == [1L, 2L, 3L].stream().map(BigInteger::valueOf).collect(toList())  // 注释 3
+    assert [1G, 2G, 3G] == [1L, 2L, 3L].stream().map(3G::valueOf).collect(toList())          // 注释 4
+}
+
+methodRefs()
+```
+
+- 注释 1：类实例方法引用：add(BigInteger val) 是 BigInteger 中的一个实例方法。
+- 注释 2：对象实例方法引用：add(BigInteger val) 是对象 3G 的实例方法。
+- 注释 3：类静态方法引用：valueOf(long val) 是类 BigInteger 的静态方法。
+- 注释 4：对象静态方法引用：valueOf(long val) 是对象 3G 的静态方法(有人认为在正常情况下这种风格不好)
+
+下面的脚本中显示了一些例子，突出了各种支持的构造函数引用情况：
+
+```groovy
+@CompileStatic
+void constructorRefs() {
+    assert [1, 2, 3] == ['1', '2', '3'].stream().map(Integer::new).collect(toList())  // 注释 1
+
+    def result = [1, 2, 3].stream().toArray(Integer[]::new)                           // 注释 2
+    assert result instanceof Integer[]
+    assert result.toString() == '[1, 2, 3]'
+}
+
+constructorRefs()
+```
+
+- 注释 1：类构造方法引用
+- 注释 2：数组狗仔方法引用
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
