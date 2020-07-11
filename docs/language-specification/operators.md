@@ -516,6 +516,68 @@ constructorRefs()
 - 注释 1：类构造方法引用
 - 注释 2：数组狗仔方法引用
 
+## 7. 正则表达式操作符
+
+### 7.1 模式操作符
+
+模式操作符`~`提供了一种简单的方法去创建`java.util.regex.Pattern`实例：
+
+```groovy
+def p = ~/foo/
+assert p instanceof Pattern
+```
+
+虽然在一般情况下，你会发现模式操作符的表达式是在一个斜杠字符串`slashy-string`中，但在 Groovy 中它可以用于任何类型的`String`：
+
+```groovy
+p = ~'foo'                                                        // 注释 1
+p = ~"foo"                                                        // 注释 2
+p = ~$/dollar/slashy $ string/$                                   // 注释 3
+p = ~"${pattern}"                                                 // 注释 4
+```
+
+- 注释 1：用于单引号字符串
+- 注释 2：用于双引号字符串
+- 注释 3：用于斜杠字符串
+- 注释 4：也可以用于 `GString`
+
+### 7.2 查找操作符
+
+可以使用`find`操作符`=~`直接创建一个`java.util.regex.Matcher`实例：
+
+```groovy
+def text = "some text to match"
+def m = text =~ /match/                                           // 注释 1
+assert m instanceof Matcher                                       // 注释 2
+if (!m) {                                                         // 注释 3
+    throw new RuntimeException("Oops, text not found!")
+}
+```
+
+- 注释 1：使用`=~`右侧的模式，针对`text`创建一个匹配器
+- 注释 2：`=~`的返回类型是`Matcher`
+- 注释 3：相当于调用`if (!m.find(0))`
+
+由于`Matcher`通过调用它的`find`方法来转换到`boolean`，所以当它作为谓词出现时（在`if`、`?:`等中），`=~`操作符与Perl的`=~`操作符的简单使用是一致的。当意图是迭代指定模式的匹配时（在`while`等中），直接在匹配器上调用`find()`或使用`iterator`DGM。
+
+### 7.3 匹配操作符
+
+匹配操作符(`==~`)是查找操作符的一个细微变化，它不返回`Matcher`，而是返回一个 boolean，并且要求输入字符串严格匹配：
+
+```groovy
+m = text ==~ /match/                                              // 注释 1
+assert m instanceof Boolean                                       // 注释 2
+if (m) {                                                          // 注释 3
+    throw new RuntimeException("Should not reach that point!")
+}
+```
+
+- 注释 1：`==~`用正则表达式匹配主题，但必须严格匹配。
+- 注释 2：`==~`的返回类型是`boolean`
+- 注释 3：相当于调用`if (text ==~ /match/)`
+
+
+
 
 
 
