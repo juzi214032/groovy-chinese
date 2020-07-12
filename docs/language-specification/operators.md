@@ -1,3 +1,7 @@
+---
+sidebarDepth: 2
+---
+
 本章将介绍 Groovy 编程语言的运算符。
 
 ## 1. 算术运算符
@@ -576,23 +580,388 @@ if (m) {                                                          // 注释 3
 - 注释 2：`==~`的返回类型是`boolean`
 - 注释 3：相当于调用`if (text ==~ /match/)`
 
+## 8. 其他操作符
 
+### 8.1 展开操作符
 
+展开操作符（`*.`），用于调用集合对象的所有项的操作。它相当于在每个项目上调用操作，并将结果收集到一个列表中：
 
+```groovy
+class Car {
+    String make
+    String model
+}
+def cars = [
+       new Car(make: 'Peugeot', model: '508'),
+       new Car(make: 'Renault', model: 'Clio')]       // 注释 1
+def makes = cars*.make                                // 注释 2
+assert makes == ['Peugeot', 'Renault']                // 注释 3
+```
 
+- 注释 1：建立一个列表（其中的一个元素为`null`）
+- 注释 2：使用展开操作符`*.`将不会抛出`NullPointerException`
+- 注释 3：接收器也可能为`null`，在这种情况下，返回值也为`null`
 
+展开操作符可以用于任何实现了`Iterable`接口的类：
 
+```groovy
+class Component {
+    Long id
+    String name
+}
+class CompositeObject implements Iterable<Component> {
+    def components = [
+        new Component(id: 1, name: 'Foo'),
+        new Component(id: 2, name: 'Bar')]
 
+    @Override
+    Iterator<Component> iterator() {
+        components.iterator()
+    }
+}
+def composite = new CompositeObject()
+assert composite*.id == [1,2]
+assert composite*.name == ['Foo','Bar']
+```
 
+在处理本身包含集合的集合时，可以多次使用展开运算符（此处为 cars\*.models\*.name）：
 
+```groovy
+class Make {
+    String name
+    List<Model> models
+}
 
+@Canonical
+class Model {
+    String name
+}
 
+def cars = [
+    new Make(name: 'Peugeot',
+             models: [new Model('408'), new Model('508')]),
+    new Make(name: 'Renault',
+             models: [new Model('Clio'), new Model('Captur')])
+]
 
+def makes = cars*.name
+assert makes == ['Peugeot', 'Renault']
 
+def models = cars*.models*.name
+assert models == [['408', '508'], ['Clio', 'Captur']]
+assert models.sum() == ['408', '508', 'Clio', 'Captur'] // flatten one level
+assert models.flatten() == ['408', '508', 'Clio', 'Captur'] // flatten all levels (one in this case)
+```
 
+考虑对集合的集合使用`collectNested` DGM方法而不是展开操作符：
 
+```groovy
+class Car {
+    String make
+    String model
+}
+def cars = [
+   [
+       new Car(make: 'Peugeot', model: '408'),
+       new Car(make: 'Peugeot', model: '508')
+   ], [
+       new Car(make: 'Renault', model: 'Clio'),
+       new Car(make: 'Renault', model: 'Captur')
+   ]
+]
+def models = cars.collectNested{ it.model }
+assert models == [['408', '508'], ['Clio', 'Captur']]
+```
 
+#### 8.1.1 展开方法参数
 
+可能会有这样的情况，当一个方法调用的参数可以在一个列表中找到，你需要适应方法参数。在这种情况下，你可以使用展开操作符来调用方法。例如，想象你有以下方法定义：
+
+```groovy
+int function(int x, int y, int z) {
+    x*y+z
+}
+```
+
+然后你有如下列表：
+
+```groovy
+def args = [4,5,6]
+```
+
+你可以在不定义中间变量的情况下调用该方法：
+
+```groovy
+assert function(*args) == 26
+```
+
+甚至可以把常规的参数和展开操作符混合在一起：
+
+```groovy
+args = [4]
+assert function(*args,5,6) == 26
+```
+
+#### 8.1.2 展开 List 元素
+
+在一个列表内使用展开操作符时，就像展开元素的内容被内嵌到列表中一样：
+
+```groovy
+def items = [4,5]                      // 注释 1
+def list = [1,2,3,*items,6]            // 注释 2
+assert list == [1,2,3,4,5,6]           // 注释 3
+```
+
+- 注释 1：`items`是一个`list`
+- 注释 2：我们想把项目列表的内容直接插入到列表中，而不需要调用`addAll`
+- 注释 3：`items`的内容已经被插入到`list`中
+
+#### 8.1.3 展开 Map 元素
+
+spread map 操作符的工作方式与 spread list 操作符类似，但适用于 map。它允许您将 map 的内容内嵌到另一个map 中，就像下面的例子：
+
+```groovy
+def m1 = [c:3, d:4]                   
+def map = [a:1, b:2, *:m1]            
+assert map == [a:1, b:2, c:3, d:4]    
+```
+
+- 注释 1：`m1`是我们想要插入的 map
+- 注释 2：使用`*:m1`符号将`m1`的内容插入到 map 中
+- 注释 3：`map`包含`m1`的所有元素
+
+spread map 操作符的位置是有意义的，就像下面的例子中说明的那样：
+
+```groovy
+def m1 = [c:3, d:4]                   // 注释 1
+def map = [a:1, b:2, *:m1, d: 8]      // 注释 2
+assert map == [a:1, b:2, c:3, d:8]    // 注释 3
+```
+
+- 注释 1：`m1`是我们想要插入的 map
+- 注释 2：我们使用`*:m1`符号将`m1`的内容展开到`map`中，但在展开后会键`d`会被重新定义
+- 注释 3：`map`包含了所有预期的键，但`d`被重新定义了
+
+### 8.2 范围操作符
+
+Groovy 支持范围的概念，并提供了一个符号(`..`)来创建对象的范围：
+
+```groovy
+def range = 0..5                                    // 注释 1
+assert (0..5).collect() == [0, 1, 2, 3, 4, 5]       // 注释 2
+assert (0..<5).collect() == [0, 1, 2, 3, 4]         // 注释 3
+assert (0..5) instanceof List                       // 注释 4
+assert (0..5).size() == 6                           // 注释 5
+```
+
+- 注释 1：一个简单的整数范围，存储在一个局部变量中。
+- 注释 2：一个包含边界的`IntRange`
+- 注释 3：一个包含上边界的`IntRange`
+- 注释 4：一个实现`List`接口的`groovy.lang.Range`
+- 注释 5：可以调用`size`方法
+
+Ranges 的实现是轻量级的，这意味着只存储下界和上界。你可以从任何具有`next()`和`forever()`方法的`Comparable`对象创建一个范围，以确定范围内的下一个/上一个项目。例如，你可以这样创建一个字符的范围：
+
+```groovy
+assert ('a'..'d').collect() == ['a','b','c','d']
+```
+
+### 8.3 宇宙飞船操作符
+
+宇宙飞船操作符（`<=>`）委托给`compareTo`方法：
+
+```groovy
+assert (1 <=> 1) == 0
+assert (1 <=> 2) == -1
+assert (2 <=> 1) == 1
+assert ('a' <=> 'z') == -1
+```
+
+### 8.4 下标操作符
+
+下标操作符是`getAt`或`putAt`的简称，取决于你是在赋值操作符（`=`）的左边还是右边使用它：
+
+```groovy
+def list = [0,1,2,3,4]					
+assert list[2] == 2                     // 注释 1
+list[2] = 4                             // 注释 2
+assert list[0..2] == [0,1,4]            // 注释 3
+list[0..2] = [6,6,6]                    // 注释 4
+assert list == [6,6,6,3,4]              // 注释 5
+```
+
+- 注释 1：`[2]`可以替代`getAt(2)`
+- 注释 2：如果在赋值操作符的左边，将调用`putAt`
+- 注释 3：`getAt`也支持范围
+- 注释 4：`putAt`也一样
+- 注释 5：list 已经改变
+
+下标操作符结合`getAt`/`putAt`的可以实现一种方便的对象重构方式：
+
+```groovy
+class User {
+    Long id
+    String name
+    def getAt(int i) {                                             // 注释 1
+        switch (i) {
+            case 0: return id
+            case 1: return name
+        }
+        throw new IllegalArgumentException("No such element $i")
+    }
+    void putAt(int i, def value) {                                 // 注释 2
+        switch (i) {
+            case 0: id = value; return
+            case 1: name = value; return
+        }
+        throw new IllegalArgumentException("No such element $i")
+    }
+}
+def user = new User(id: 1, name: 'Alex')                           // 注释 3
+assert user[0] == 1                                                // 注释 4
+assert user[1] == 'Alex'                                           // 注释 5
+user[1] = 'Bob'                                                    // 注释 6
+assert user.name == 'Bob'                                          // 注释 7
+```
+
+- 注释 1：`User`类自定义了一个`getAt`实现
+- 注释 2：`User`类自定义了一个`putAt`实现
+- 注释 3：创建一个简单的 user
+- 注释 4：使用索引为 0 的下标操作符可以访问 user id
+- 注释 5：使用索引为 1 的下标操作符可以访问 user name
+- 注释 6：可以使用下标操作符来写入一个属性，这是因为对`putAt`进行了重写
+- 注释 7：检查 user 的 name 属性的真实值
+
+### 8.5 安全索引操作符
+
+Groovy 3.0.0 引入了安全索引操作符（`?[]`），类似于`?.`，举个例子：
+
+```groovy
+String[] array = ['a', 'b']
+assert 'b' == array?[1]      // 使用普通的数组索引获取值
+array?[1] = 'c'              // 使用普通的数组索引设置值
+assert 'c' == array?[1]
+
+array = null
+assert null == array?[1]     // 所有索引值都会返回 null
+array?[1] = 'c'              // 尝试设置值（静默操作，下标越界不会报错）
+assert null == array?[1]
+
+def personInfo = [name: 'Daniel.Sun', location: 'Shanghai']
+assert 'Daniel.Sun' == personInfo?['name']      // 使用普通的 map key 获取值
+personInfo?['name'] = 'sunlan'                  // 使用普通的 map key 设置值
+assert 'sunlan' == personInfo?['name']
+
+personInfo = null
+assert null == personInfo?['name']              // 所有的 map key 都会返回 null
+personInfo?['name'] = 'sunlan'                  // 尝试设置值（静默操作，key 不存在不会报错）
+assert null == personInfo?['name']
+```
+
+### 8.6 成员操作符
+
+成员操作符（`in`）相当于调用`isCase`方法。在 `List` 的上下文中，它相当于调用 `contains` 方法，就像下面的例子：
+
+```groovy
+def list = ['Grace','Rob','Emmy']
+assert ('Emmy' in list)                     // 注释 1
+```
+
+- 注释 1：相当于调用`list.contains('Emmy')`或`list.isCase('Emmy')`
+
+### 8.7 身份操作符
+
+在 Groovy 中，使用 `==`来测试是否相等（与 Java 中是不同的），它会调用`equals`方法。如果你想比较的是内存地址是否相等（像 Java 中的那样），你应该使用`is`，像下面的例子这样：
+
+```groovy
+def list1 = ['Groovy 1.8','Groovy 2.0','Groovy 2.3']        // 注释 1
+def list2 = ['Groovy 1.8','Groovy 2.0','Groovy 2.3']        // 注释 2
+assert list1 == list2                                       // 注释 3
+assert !list1.is(list2)                                     // 注释 4
+```
+
+- 注释 1：创建一个 String 列表
+- 注释 2：再创建一个包含相同元素的 String 列表
+- 注释 3：使用`==`测试出对象是相同的
+- 注释 4：但是使用`is`判断出他们的内存地址是不用的
+
+### 8.8 强制操作符
+
+强制操作符（`as`）是类型转换的一种变体，强制操作符将对象从一种类型转换为另一种类型，并且不需要他们兼容赋值。让我们举个例子：
+
+```groovy
+Integer x = 123
+String s = (String) x                    // 注释 1
+```
+
+- 注释 1：`Integer`不能赋值给`String`，所以它将在运行时产生一个`ClassCastException`
+
+可以使用强制操作符来解决这个问题：
+
+```groovy
+Integer x = 123
+String s = x as String       // 注释 1
+```
+
+- 注释 1：`Integer`不能赋值给`String`，但使用`as`会将其强制转换为一个`String`
+
+当一个对象被强制转换成另一个对象时，除非目标类型与源类型相同，否则将返回一个新对象。根据源类型和目标类型的不同，转换的规则也不同，如果没有找到转换规则，转换可能会失败。`asType`方法可以实现自定义转换规则：
+
+```groovy
+class Identifiable {
+    String name
+}
+class User {
+    Long id
+    String name
+    def asType(Class target) {                                              // 注释 1
+        if (target == Identifiable) {
+            return new Identifiable(name: name)
+        }
+        throw new ClassCastException("User cannot be coerced into $target")
+    }
+}
+def u = new User(name: 'Xavier')                                            // 注释 2
+def p = u as Identifiable                                                   // 注释 3
+assert p instanceof Identifiable                                            // 注释 4
+assert !(p instanceof User)                                                 // 注释 5
+```
+
+- 注释 1：`User`类自定义了一个从`User`类转换到`Identifiable`类的规则
+- 注释 2：创建`User`实例
+- 注释 3：转换`User`到`Identifiable`
+- 注释 4：`p`是一个`Identifiable`实例
+- 注释 5：`p`不是一个`User`实例
+
+### 8.9 钻石操作符
+
+钻石运算符(`<>`)是仅有的一个语法糖运算符，以支持与 Java 7 中同名运算符的兼容性。它用来表示通用类型应该从声明中推断出来：
+
+```groovy
+List<String> strings = new LinkedList<>()
+```
+
+在动态 Groovy 中，这是不需要的。在静态类型检查的 Groovy 中，它也是可选的，因为无论这个操作符是否存在，Groovy 类型检查器都会执行类型推断。
+
+### 8.10 调用操作符
+
+调用操作符`()`用于隐式调用一个名为`call`的方法。对于任何定义了`call`方法的对象，可以省略`.call`部分，而使用调用操作符：
+
+```groovy
+class MyCallable {
+    int call(int x) {           // 注释 1
+        2*x
+    }
+}
+
+def mc = new MyCallable()
+assert mc.call(2) == 4          // 注释 2
+assert mc(2) == 4               // 注释 3
+```
+
+- 注释 1：`MyCallable`定义了一个名为`call`的方法。注意，它不需要实现`java.util.concurrent.Callable`
+- 注释 2：我们可以使用传统的方法调用语法调用它
+- 注释 3：或者我们使用调用操作符
 
 
 
