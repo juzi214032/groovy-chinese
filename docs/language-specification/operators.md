@@ -990,15 +990,63 @@ assert mc(2) == 4               // 注释 3
 | 14 | `?:` | 三元运算 |
 | 15 | `=`  `**=`  `*=`  `/=`  `%=`  `+=`  `-=`  `<<=`  `>>=`  `>>>=`  `&=`  `^=`  `|=`   `?=` | 赋值操作 |
 
+## 10. 操作符重载
 
+Groovy 允许你重载各种操作符，这样就可以在你自己的类中使用它们。看看这个简单的类：
 
+```groovy
+class Bucket {
+    int size
 
+    Bucket(int size) { this.size = size }
 
+    Bucket plus(Bucket other) {                     // 注释 1
+        return new Bucket(this.size + other.size)
+    }
+}
+```
 
+- 注释 1：`Bucket`实现了一个叫`plus()`的特殊方法
 
+只要实现`plus()`方法，`Bucket`类就可以像这样使用`+`操作符了：
 
+```groovy
+def b1 = new Bucket(4)
+def b2 = new Bucket(11)
+assert (b1 + b2).size == 15                         // 注释 1
+```
 
+- 注释 1：两个`Bucket`对象可以用`+`操作符相加
 
+所有（非比较器）Groovy 运算符都有一个相应的方法，你可以在自己的类中实现。唯一的要求是你的方法是公共的，有正确的名称，并且有正确的参数数量。参数类型取决于你想在操作符的右侧支持什么类型。例如，你可以支持以下语句：
+
+```groovy
+assert (b1 + 11).size == 15
+```
+
+实现`plus()`方法：
+
+```groovy
+Bucket plus(int capacity) {
+    return new Bucket(this.size + capacity)
+}
+```
+
+下面是一个完整的运算符及其对应方法的列表：
+
+| 运算符 | 方法          | 运算符     | 方法                    |
+| ------ | ------------- | ---------- | ----------------------- |
+| `+`    | a.plus(b)     | `a[b]`     | a.getAt(b)              |
+| `-`    | a.minus(b)    | `a[b] = c` | a.putAt(b,c)            |
+| `*`    | a.multiply(b) | `a in b`   | b.isCase(a)             |
+| `/`    | a.div(b)      | `<<`       | a.leftShift(b)          |
+| `%`    | a.mod(b)      | `>>`       | a.rightShift(b)         |
+| `**`   | a.power(b)    | `>>>`      | a.rightShiftUnsigned(b) |
+| `|`    | a.or(b)       | `++`       | a.next()                |
+| `&`    | a.and(b)      | `--`       | a.previous()            |
+| `^`    | a.xor(b)      | `+a`       | a.positive()            |
+| `as`   | a.asType(b)   | `-a`       | a.negative()            |
+| `a()`  | a.call()      | `~a`       | a.bitwiseNegate()       |
 
 
 
