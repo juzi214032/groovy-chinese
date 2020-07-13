@@ -31,7 +31,7 @@ module.exports = {
   themeConfig: {
     docsDir: 'docs',
     editLinks: true,
-    smoothScroll: true,
+    smoothScroll: false,
     repoLabel: 'Github',
     editLinkText: '纠正错误',
     repo: "juzi214032/groovy-chinese",
