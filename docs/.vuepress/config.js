@@ -44,7 +44,7 @@ module.exports = {
         path: '/language-specification/operators.md'
       }, {
         title: '程序结构',
-        path: '/unfinished.md'
+        path: '/language-specification/program-structure.md'
       }, {
         title: '对象导向',
         path: '/unfinished.md'
