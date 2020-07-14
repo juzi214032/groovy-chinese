@@ -4,12 +4,7 @@ module.exports = {
   title: "Groovy 中文文档",
   description: "Groovy 中文文档",
   plugins: [
-    "vuepress-plugin-cat",
-    ['vuepress-plugin-code-copy', {
-      align:"top",
-      color:"#4298b8",
-      successText:"复制成功~"
-    }]
+    "vuepress-plugin-cat"
   ],
   head: [
     ['link', {
