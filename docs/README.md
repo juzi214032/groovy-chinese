@@ -11,6 +11,6 @@ features:
 - title: 强大的功能
   details: 闭包、构建器、运行时和编译时元编程、函数式编程、类型推断和静态编译。
 - title: Java 平滑集成
-  details: 与 Java 和 Java 的任何第三方库进行无缝和透明的集成和操作。
+  details: 与 Java 和 Java 的任何第三方库进行无缝透明的集成和操作。
 footer: MIT Licensed | Copyright © 2020-present 桔子
 ---
