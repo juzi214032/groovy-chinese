@@ -185,3 +185,82 @@ abstract class Abstract {         // 注释 1
 
 抽象类通常与接口进行比较。两者之间有重要的区别。首先，抽象类可能包含字段/属性和具体方法，而接口可能只包含抽象方法（方法签名）。此外，一个类可以实现多个接口，而它可以只扩展一个类，无论是否抽象。
 
+### 1.3 接口
+
+一个接口定义了一个类需要遵守的契约。一个接口只定义了一个需要实现的方法列表，但并没有定义方法的实现。
+
+```groovy
+interface Greeter {                                         // 注释 1
+    void greet(String name)                                 // 注释 2
+}
+```
+
+- 注释 1：需要使用接口关键字来声明一个接口
+- 注释 2：一个接口只定义方法签名
+
+接口的方法必须是`public`的。在接口中不能使用`protected`或`private`
+
+```groovy
+interface Greeter {
+    protected void greet(String name)           // 注释 1
+}
+```
+
+- 注释 1：使用 `protected` 会产生一个编译期错误
+
+如果一个类在它的实现列表中定义了接口，或者它的任何一个父类实现了接口，那么这个类就实现了一个接口。
+
+```groovy
+class SystemGreeter implements Greeter {                    // 注释 1
+    void greet(String name) {                               // 注释 2
+        println "Hello $name"
+    }
+}
+
+def greeter = new SystemGreeter()
+assert greeter instanceof Greeter                           // 注释 3
+```
+
+- 注释 1：`SystemGreeter`使用`implements`关键字实现了`Greeter`接口
+- 注释 2：实现`greet`方法
+- 注释 3：`SystemGreeter`的任何实例都是`Greeter`接口的实例。
+
+一个接口可以扩展另一个接口：
+
+```groovy
+interface ExtendedGreeter extends Greeter {                 // 注释 1
+    void sayBye(String name)
+}
+```
+
+- 注释 1：`ExtendedGreeter`接口使用`extends`关键字扩展了`Greeter`接口
+
+值得注意的是，一个类要成为一个接口的实例，必须是显式的。例如，下面这个类定义了`greet`方法，虽然它是在`Greeter`接口中声明的，但是这个类并没有实现Greeter：
+
+```groovy
+class DefaultGreeter {
+    void greet(String name) { println "Hello" }
+}
+
+greeter = new DefaultGreeter()
+assert !(greeter instanceof Greeter)
+```
+
+换句话说，Groovy没有定义结构类型。然而，可以在运行时使用`as`转换符，让一个对象的实例实现一个接口：
+
+```groovy
+greeter = new DefaultGreeter()                              // 注释 1
+coerced = greeter as Greeter                                // 注释 2
+assert coerced instanceof Greeter                           // 注释 3
+```
+
+- 注释 1：创建一个没有实现接口的`DefaultGreeter`类的实例
+- 注释 2：在运行时将实例转换为一个`Greeter`
+- 注释 3：被转换的实例实现了`Greeter`接口
+
+你可以看到，有两个不同的对象：一个是源对象，一个`DefaultGreeter`实例，它没有实现接口。另一个是委托给转换对象的`Greeter`实例。
+
+Groovy 接口不像 Java 8接口那样支持默认实现。如果你正在寻找类似的东西（但不等于），traits 接近于接口，但允许默认实现以及本手册中描述的其他重要特性。
+
+
+
