@@ -41,8 +41,8 @@ module.exports = {
         title: '程序结构',
         path: '/language-specification/program-structure.md'
       }, {
-        title: '对象导向',
-        path: '/unfinished.md'
+        title: '面向对象',
+        path: '/language-specification/object-orientation.md'
       }, {
         title: '闭包',
         path: '/unfinished.md'
